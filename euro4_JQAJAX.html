@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Euromilhões</title>
+	<script type="text/javascript" src="jquery/jquery-3.1.1.js"></script>
+	<style type="text/css">
+		body {
+			background-color: black;
+			color:white;
+			margin:0px;
+		}
+
+		#divtitle, #divinfo {
+			background-color: lightgrey;
+			color:navy;
+		}
+
+
+		ul.numbers, ul.stars {
+			display: inline-block;
+		}
+		ul.numbers li {
+			background-color: cyan;
+		}
+		ul.stars li {
+			background-color: yellow;
+		}
+
+		ul.stars li, ul.numbers li {
+			display: inline-block;
+			width: 40px;
+			color: black;
+			border-radius : 10px;
+			text-align: center;
+
+		}
+
+
+	</style>
+</head>
+<body>
+<div id="divtitle">
+	Euromilhões
+</div>
+<div id="divcontrol">
+	<button id="bgen">Gerar Chave</button>
+	<button id="breset">Apagar Chaves</button>
+	<button id="bobter">Obter Chave</button>
+	<button id="bobter2">Obter Chave 2</button>
+</div>
+<div id="divcontent">
+	<div class="divkey">
+	<!--
+		<ul class="numbers">
+			<li>2</li>
+			<li>4</li>
+			<li>17</li>
+			<li>33</li>
+			<li>47</li>
+		</ul>
+		<ul class="stars">
+			<li>5</li>
+			<li>11</li>
+		</ul>
+		-->
+	</div>
+</div>
+
+<div id="divinfo">
+	&copy; Pedro Miguel Moreira | SIR1617
+</div>
+<script type="text/javascript">
+	// botao gerar
+
+		$("#bgen").click(genKey);
+
+	function genKey() {
+		keyGenerator(key);
+		divnewkey = key2HTML(key);
+		
+		$("#divcontent").append(divnewkey);
+	}
+
+	$("#breset").click(function () {$("#divcontent").empty()});
+
+
+	$("#bobter").click(function () {
+		$.ajax({
+			url : "http://alunos.estg.ipvc.pt/~pmoreira/KEYSERVER/KeyServerJSON.php",
+			method : "get",
+			dataType : "json",
+			success : function (data) {
+				//console.log(data);
+				keyHTML = key2HTML(data);
+				$("#divcontent").append(keyHTML);
+			}
+		})
+	});
+
+	// servidor "lento"
+	$("#bobter2").click(function () {
+
+		$.getJSON( "http://alunos.estg.ipvc.pt/~pmoreira/KEYSERVER2/KeyServerJSON.php", function (data) {
+				//console.log(data);
+				keyHTML = key2HTML(data);
+				$("#divcontent").append(keyHTML);
+			});
+	});
+
+	// static key
+	key = {
+		numbers : [1,4,5,6,7],
+		stars : [5,6],
+	};
+
+	function keyGenerator(k) {
+		// reset ao k
+		k.numbers = [];
+		k.stars = [];
+
+		console.log(k);
+
+		// tombola dos numeros
+		var allnumbers = [];
+		for (var n=1; n <= 50; n++) {
+			allnumbers.push(n);
+		}
+		// tombola das estrelas
+		var allstars = [];
+		for (var n=1; n <= 11; n++) {
+			allstars.push(n);
+		}
+
+		// extrai numero
+		for(i=0; i<5; i++) {
+			var idx = Math.floor(Math.random() * allnumbers.length);
+			var extracted  = allnumbers.splice(idx,1);
+			k.numbers.push(extracted[0]);
+		}
+		k.numbers.sort(compareNumbers);
+
+		for(i=0; i<2; i++) {
+			var idx = Math.floor(Math.random() * allstars.length);
+			var extracted  = allstars.splice(idx,1);
+			k.stars.push(extracted[0]);
+		}
+		k.stars.sort(compareNumbers);
+
+		console.log(key.numbers);
+		
+	}
+
+
+	function compareNumbers(a,b) {
+		return a-b;
+	}
+
+
+	function key2HTML (k){
+
+
+		$divkey  = $("<div/>").addClass("divkey");
+		
+		$listofnumbers = $("<ul/>").addClass("numbers");
+
+		k.numbers.forEach(function (element,index,array) {
+			$listofnumbers.append($("<li/>").html(element));
+		});
+
+
+		$listofstars = $("<ul/>").addClass("stars");
+
+		for (var i = 0; i < k.stars.length; i++) {
+			$listofstars.append($("<li/>").html(k.stars[i]));
+		}
+
+		$divkey.append($listofnumbers).append($listofstars);
+
+		return $divkey;
+	}
+
+
+	// simular o click no botao
+	genKey();
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
